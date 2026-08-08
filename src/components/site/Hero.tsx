@@ -94,7 +94,7 @@ export function Hero() {
           className="relative"
         >
           <motion.div
-            animate={reduced ? undefined : { y: [0, -16, 0] }}
+            animate={reduced ? { y: 0 } : { y: [0, -16, 0] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
             className="glass rounded-3xl p-4 sm:p-6"
           >
