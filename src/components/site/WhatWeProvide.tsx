@@ -136,21 +136,22 @@ const services: ServiceCard[] = [
   },
 ];
 
-// Single scrollable luxury card with crisp readable text & butter-smooth 3D flip & zoom
+// Single luxury card with 3D flip & zoom supporting 2-in-a-row mobile & 6-in-a-row desktop
 function LuxuryScrollCard({
   service,
   index,
   smoothProgress,
-  stepX,
+  targetOffset,
+  isMobile,
   onCardClick,
 }: {
   service: ServiceCard;
   index: number;
   smoothProgress: MotionValue<number>;
-  stepX: number;
+  targetOffset: { x: number; y: number };
+  isMobile: boolean;
   onCardClick: () => void;
 }) {
-  // Time windows for 6 cards over [0.03, 0.97]
   const cardCount = 6;
   const startOffset = 0.03;
   const endOffset = 0.97;
@@ -158,41 +159,38 @@ function LuxuryScrollCard({
   const spanPerCard = totalSpan / cardCount;
 
   const cardStart = startOffset + index * spanPerCard;
-  // Slower, more leisurely flip in and longer reading window
-  const p1 = cardStart + spanPerCard * 0.28; // Zoom in & flip completion
-  const p2 = cardStart + spanPerCard * 0.72; // Generous reading window before starting flip back
-  const cardEnd = cardStart + spanPerCard; // Back to base in row
+  const p1 = cardStart + spanPerCard * 0.28;
+  const p2 = cardStart + spanPerCard * 0.72;
+  const cardEnd = cardStart + spanPerCard;
 
-  // Distance from row center: index 0 -> -2.5, 1 -> -1.5, 2 -> -0.5, 3 -> +0.5, 4 -> +1.5, 5 -> +2.5
-  const centerMultiplier = index - (cardCount - 1) / 2;
-  const targetTranslateX = -centerMultiplier * stepX;
+  const maxScale = isMobile ? 2.15 : 1.85;
 
-  // 1. 3D Flip (rotateY: 0deg -> 180deg -> 0deg)
+  // 1. 3D Flip
   const rotateY = useTransform(
     smoothProgress,
     [0, cardStart, p1, p2, cardEnd, 1],
     [0, 0, 180, 180, 0, 0]
   );
 
-  // 2. Zoom Scale (1.0 -> 1.85 -> 1.0)
+  // 2. Zoom Scale
   const scale = useTransform(
     smoothProgress,
     [0, cardStart, p1, p2, cardEnd, 1],
-    [1, 1, 1.85, 1.85, 1, 1]
+    [1, 1, maxScale, maxScale, 1, 1]
   );
 
-  // 3. Center X translation
+  // 3. Center X Translation
   const x = useTransform(
     smoothProgress,
     [0, cardStart, p1, p2, cardEnd, 1],
-    [0, 0, targetTranslateX, targetTranslateX, 0, 0]
+    [0, 0, targetOffset.x, targetOffset.x, 0, 0]
   );
 
-  // 4. Subtle Y lift when zoomed
+  // 4. Center Y Translation
   const y = useTransform(
     smoothProgress,
     [0, cardStart, p1, p2, cardEnd, 1],
-    [0, 0, -10, -10, 0, 0]
+    [0, 0, targetOffset.y, targetOffset.y, 0, 0]
   );
 
   // 5. Z-Index boost during zoom
@@ -207,12 +205,12 @@ function LuxuryScrollCard({
     smoothProgress,
     [0, cardStart, p1, p2, cardEnd, 1],
     [
-      "0 15px 35px -10px rgba(0,0,0,0.9)",
-      "0 15px 35px -10px rgba(0,0,0,0.9)",
-      "0 35px 90px -10px rgba(168,85,247,0.7)",
-      "0 35px 90px -10px rgba(168,85,247,0.7)",
-      "0 15px 35px -10px rgba(0,0,0,0.9)",
-      "0 15px 35px -10px rgba(0,0,0,0.9)",
+      "0 10px 25px -5px rgba(0,0,0,0.9)",
+      "0 10px 25px -5px rgba(0,0,0,0.9)",
+      "0 30px 85px -5px rgba(168,85,247,0.75)",
+      "0 30px 85px -5px rgba(168,85,247,0.75)",
+      "0 10px 25px -5px rgba(0,0,0,0.9)",
+      "0 10px 25px -5px rgba(0,0,0,0.9)",
     ]
   );
 
@@ -224,7 +222,7 @@ function LuxuryScrollCard({
         zIndex,
         perspective: 1600,
       }}
-      className="relative flex-shrink-0 select-none"
+      className="relative flex items-center justify-center select-none"
     >
       <motion.div
         onClick={onCardClick}
@@ -236,7 +234,7 @@ function LuxuryScrollCard({
           boxShadow: shadowGlow,
           transformStyle: "preserve-3d",
         }}
-        className="w-[160px] sm:w-[180px] md:w-[200px] lg:w-[195px] xl:w-[220px] 2xl:w-[245px] aspect-[1/1.52] rounded-[22px] sm:rounded-[26px] cursor-pointer will-change-transform"
+        className="w-[115px] sm:w-[135px] md:w-[155px] lg:w-[185px] xl:w-[210px] 2xl:w-[235px] aspect-[1/1.52] rounded-[18px] sm:rounded-[22px] lg:rounded-[26px] cursor-pointer will-change-transform"
       >
         {/* ================= CARD FRONT FACE ================= */}
         <div
@@ -244,9 +242,8 @@ function LuxuryScrollCard({
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
           }}
-          className="absolute inset-0 w-full h-full rounded-[22px] sm:rounded-[26px] overflow-hidden bg-[#0c0915] border border-purple-500/40 shadow-xl"
+          className="absolute inset-0 w-full h-full rounded-[18px] sm:rounded-[22px] lg:rounded-[26px] overflow-hidden bg-[#0c0915] border border-purple-500/40 shadow-xl"
         >
-          {/* Authentic DevMeDo Playing Card Graphic */}
           <img
             src={cardFrontImg}
             alt={`DevMeDo Card - ${service.title}`}
@@ -254,73 +251,71 @@ function LuxuryScrollCard({
             loading="eager"
           />
 
-          {/* Liquid Shine Sweep */}
           <div className="liquid-shine-sweep opacity-35" />
 
-          {/* Specular Ambient Edge Highlight */}
-          <div className="pointer-events-none absolute inset-0 rounded-[22px] sm:rounded-[26px] border border-white/25 [mask-image:linear-gradient(to_bottom,white,transparent_60%)]" />
+          <div className="pointer-events-none absolute inset-0 rounded-[18px] sm:rounded-[22px] lg:rounded-[26px] border border-white/25 [mask-image:linear-gradient(to_bottom,white,transparent_60%)]" />
 
           {/* Minimalist Top Indicator */}
-          <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none z-10">
-            <span className="font-mono text-[8.5px] sm:text-[9.5px] font-bold text-purple-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-purple-500/30">
+          <div className="absolute top-2 inset-x-2 flex items-center justify-between pointer-events-none z-10">
+            <span className="font-mono text-[7.5px] sm:text-[8.5px] lg:text-[9.5px] font-bold text-purple-300 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-purple-500/30">
               {service.num}
             </span>
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_6px_#c084fc]" />
           </div>
         </div>
 
-        {/* ================= CARD BACK FACE (CRISP TEXT & RICH DETAILS) ================= */}
+        {/* ================= CARD BACK FACE ================= */}
         <div
           style={{
             transform: "rotateY(180deg)",
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
           }}
-          className="absolute inset-0 w-full h-full rounded-[22px] sm:rounded-[26px] p-4 sm:p-5 flex flex-col justify-between overflow-hidden bg-[#080512] border-2 border-purple-400/80 shadow-[inset_0_0_35px_rgba(168,85,247,0.35)] text-left"
+          className="absolute inset-0 w-full h-full rounded-[18px] sm:rounded-[22px] lg:rounded-[26px] p-3 sm:p-4 lg:p-5 flex flex-col justify-between overflow-hidden bg-[#080512] border-2 border-purple-400/80 shadow-[inset_0_0_35px_rgba(168,85,247,0.35)] text-left"
         >
           {/* Inner Ornate Filigree Border & Glow */}
-          <div className="absolute inset-1.5 rounded-[18px] sm:rounded-[22px] border border-purple-400/30 pointer-events-none" />
+          <div className="absolute inset-1.5 rounded-[14px] sm:rounded-[18px] lg:rounded-[22px] border border-purple-400/30 pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(168,85,247,0.25)_0%,rgba(124,58,237,0.08)_55%,transparent_85%)] pointer-events-none" />
 
           {/* Corner Art Deco Accents */}
-          <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 border-purple-400 pointer-events-none" />
-          <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t-2 border-r-2 border-purple-400 pointer-events-none" />
-          <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 border-purple-400 pointer-events-none" />
-          <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 border-purple-400 pointer-events-none" />
+          <div className="absolute top-2 left-2 w-2.5 h-2.5 border-t-2 border-l-2 border-purple-400 pointer-events-none" />
+          <div className="absolute top-2 right-2 w-2.5 h-2.5 border-t-2 border-r-2 border-purple-400 pointer-events-none" />
+          <div className="absolute bottom-2 left-2 w-2.5 h-2.5 border-b-2 border-l-2 border-purple-400 pointer-events-none" />
+          <div className="absolute bottom-2 right-2 w-2.5 h-2.5 border-b-2 border-r-2 border-purple-400 pointer-events-none" />
 
-          {/* Top Section: Header & Title */}
-          <div className="relative z-10 space-y-2">
+          {/* Top Section */}
+          <div className="relative z-10 space-y-1.5">
             <div className="flex items-center justify-between">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-purple-900/80 border border-purple-400/50 flex items-center justify-center text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.45)]">
-                <Icon className="w-4 h-4 text-purple-300" />
+              <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 rounded-lg bg-purple-900/80 border border-purple-400/50 flex items-center justify-center text-purple-200 shadow-[0_0_10px_rgba(168,85,247,0.45)]">
+                <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-purple-300" />
               </div>
-              <span className="font-mono text-[9px] sm:text-[10px] font-bold tracking-widest text-purple-200 bg-purple-950/90 px-2.5 py-0.5 rounded-full border border-purple-500/50">
+              <span className="font-mono text-[7.5px] sm:text-[8.5px] lg:text-[9.5px] font-bold tracking-widest text-purple-200 bg-purple-950/90 px-2 py-0.5 rounded-full border border-purple-500/50">
                 {service.num} // SPEC
               </span>
             </div>
 
             <div>
-              <span className="text-[8px] sm:text-[9px] font-mono uppercase tracking-widest text-[#c084fc] font-bold block">
+              <span className="text-[7px] sm:text-[7.5px] lg:text-[8.5px] font-mono uppercase tracking-widest text-[#c084fc] font-bold block">
                 {service.category}
               </span>
-              <h4 className="text-sm sm:text-base font-black font-display uppercase tracking-tight text-white leading-tight mt-0.5">
+              <h4 className="text-[11px] sm:text-xs lg:text-sm font-black font-display uppercase tracking-tight text-white leading-tight mt-0.5">
                 {service.title}
               </h4>
             </div>
 
-            <p className="text-[9.5px] sm:text-[10.5px] text-zinc-300 leading-relaxed font-normal antialiased line-clamp-3">
+            <p className="text-[7.5px] sm:text-[8.5px] lg:text-[9.5px] text-zinc-300 leading-relaxed font-normal antialiased line-clamp-3">
               {service.description}
             </p>
           </div>
 
-          {/* Deliverables Checklist */}
-          <div className="relative z-10 space-y-1.5 my-auto py-1">
+          {/* Deliverables */}
+          <div className="relative z-10 space-y-1 my-auto py-0.5">
             {service.features.slice(0, 3).map((feat, i) => (
               <div
                 key={i}
-                className="flex items-start gap-1.5 text-[9px] sm:text-[10px] text-zinc-100 font-medium"
+                className="flex items-start gap-1 text-[7.5px] sm:text-[8px] lg:text-[9px] text-zinc-100 font-medium"
               >
-                <CheckCircle2 className="w-3 h-3 text-purple-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-2.5 h-2.5 text-purple-400 shrink-0 mt-0.5" />
                 <span className="leading-snug antialiased line-clamp-1">
                   {feat}
                 </span>
@@ -329,16 +324,16 @@ function LuxuryScrollCard({
           </div>
 
           {/* Bottom Action Footer */}
-          <div className="relative z-10 pt-2 border-t border-purple-500/30 flex items-center justify-between">
-            <span className="text-[8px] sm:text-[9px] font-mono text-purple-300 uppercase tracking-wider font-bold">
+          <div className="relative z-10 pt-1.5 border-t border-purple-500/30 flex items-center justify-between">
+            <span className="text-[7px] sm:text-[7.5px] lg:text-[8px] font-mono text-purple-300 uppercase tracking-wider font-bold">
               {service.badge}
             </span>
             <a
               href="#contact"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-white text-black hover:bg-purple-300 hover:text-black px-2.5 py-1 rounded transition-colors shadow-sm"
+              className="inline-flex items-center gap-0.5 text-[7.5px] sm:text-[8px] lg:text-[9px] font-bold uppercase tracking-wider bg-white text-black hover:bg-purple-300 hover:text-black px-2 py-0.5 rounded transition-colors shadow-sm"
             >
-              Order <ArrowUpRight className="w-3 h-3" />
+              Order <ArrowUpRight className="w-2.5 h-2.5" />
             </a>
           </div>
         </div>
@@ -349,17 +344,23 @@ function LuxuryScrollCard({
 
 export function WhatWeProvide() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const rowRef = useRef<HTMLDivElement>(null);
-  const [stepX, setStepX] = useState(220);
+  const gridRef = useRef<HTMLDivElement>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [offsets, setOffsets] = useState<{ x: number; y: number }[]>([
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+  ]);
 
-  // Track scroll through the pinned container with generous height for slower scroll travel
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
-  // Silky smooth, relaxed spring physics for a slow and controllable scroll pace
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 60,
     damping: 26,
@@ -367,27 +368,47 @@ export function WhatWeProvide() {
     restDelta: 0.0001,
   });
 
-  // Calculate dynamic card step distance on window resize
+  // Calculate dynamic card translation to screen center for any viewport/layout
   useEffect(() => {
-    const updateStep = () => {
-      if (rowRef.current) {
-        const cards = rowRef.current.children;
-        if (cards.length >= 2) {
-          const first = cards[0]?.getBoundingClientRect();
-          const second = cards[1]?.getBoundingClientRect();
-          if (first && second) {
-            setStepX(Math.abs(second.left - first.left));
+    const updateLayout = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+
+      if (gridRef.current) {
+        const containerRect = gridRef.current.getBoundingClientRect();
+        const containerCenterX = containerRect.left + containerRect.width / 2;
+        const containerCenterY = containerRect.top + containerRect.height / 2;
+
+        const children = gridRef.current.children;
+        const newOffsets: { x: number; y: number }[] = [];
+        for (let i = 0; i < children.length; i++) {
+          const child = children[i];
+          if (child) {
+            const rect = child.getBoundingClientRect();
+            const cardCenterX = rect.left + rect.width / 2;
+            const cardCenterY = rect.top + rect.height / 2;
+            newOffsets.push({
+              x: containerCenterX - cardCenterX,
+              y: containerCenterY - cardCenterY,
+            });
           }
+        }
+        if (newOffsets.length === 6) {
+          setOffsets(newOffsets);
         }
       }
     };
 
-    updateStep();
-    window.addEventListener("resize", updateStep);
-    return () => window.removeEventListener("resize", updateStep);
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    const timer = setTimeout(updateLayout, 150);
+    return () => {
+      window.removeEventListener("resize", updateLayout);
+      clearTimeout(timer);
+    };
   }, []);
 
-  // Track which card is currently active for bottom indicators
+  // Track active card
   useEffect(() => {
     const unsubscribe = smoothProgress.on("change", (v) => {
       const startOffset = 0.03;
@@ -408,7 +429,6 @@ export function WhatWeProvide() {
     return () => unsubscribe();
   }, [smoothProgress]);
 
-  // Scroll smoothly to a specific card's zoom window
   const scrollToCard = (index: number) => {
     if (!containerRef.current) return;
     const startOffset = 0.03;
@@ -424,7 +444,6 @@ export function WhatWeProvide() {
     window.scrollTo({ top: targetScrollY, behavior: "smooth" });
   };
 
-  // Header and prompt opacities
   const headerOpacity = useTransform(smoothProgress, [0, 0.03, 0.95, 1], [1, 0.85, 0.85, 1]);
   const promptOpacity = useTransform(smoothProgress, [0, 0.06], [1, 0]);
 
@@ -434,30 +453,30 @@ export function WhatWeProvide() {
       ref={containerRef}
       className="relative h-[1100vh] w-full bg-[#050408] text-white"
     >
-      {/* Sticky Full-Screen Viewport */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between items-center py-8 sm:py-10 px-4">
-        {/* Background Dark Matte Luxury Leather Texture & Vignette */}
+      {/* Sticky Viewport */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between items-center py-6 sm:py-8 lg:py-10 px-4">
+        {/* Dark Luxury Texture & Glow */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(22,15,38,0.92)_0%,rgba(5,4,8,1)_80%)] pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[550px] bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.14)_0%,rgba(124,58,237,0.04)_50%,transparent_75%)] blur-3xl pointer-events-none" />
 
-        {/* 1. Minimal Clean Section Header */}
+        {/* 1. Header */}
         <motion.div
           style={{ opacity: headerOpacity }}
           className="relative z-20 text-center select-none"
         >
-          <span className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] text-[#c084fc] block mb-1">
+          <span className="font-mono text-[9px] sm:text-xs font-bold uppercase tracking-[0.3em] text-[#c084fc] block mb-0.5 sm:mb-1">
             WHAT WE PROVIDE
           </span>
-          <h2 className="font-display font-black text-xl sm:text-2xl md:text-3xl uppercase tracking-tight text-white">
+          <h2 className="font-display font-black text-lg sm:text-2xl md:text-3xl uppercase tracking-tight text-white">
             SIX CORE DISCIPLINES
           </h2>
         </motion.div>
 
-        {/* 2. Central 6 Luxury Cards Lineup (Matching Uploaded Image) */}
+        {/* 2. Central Cards Layout: 2-in-a-row on Mobile, 6-in-a-row on Desktop */}
         <div className="relative z-20 w-full max-w-[1600px] mx-auto flex items-center justify-center my-auto overflow-visible">
           <div
-            ref={rowRef}
-            className="flex items-center justify-center gap-3 sm:gap-4 md:gap-5 lg:gap-6 px-2 overflow-visible"
+            ref={gridRef}
+            className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-5 lg:gap-5 xl:gap-6 px-2 overflow-visible"
           >
             {services.map((service, index) => (
               <LuxuryScrollCard
@@ -465,26 +484,25 @@ export function WhatWeProvide() {
                 service={service}
                 index={index}
                 smoothProgress={smoothProgress}
-                stepX={stepX}
+                targetOffset={offsets[index] ?? { x: 0, y: 0 }}
+                isMobile={isMobile}
                 onCardClick={() => scrollToCard(index)}
               />
             ))}
           </div>
         </div>
 
-        {/* 3. Bottom Minimalist Indicator & Navigation Dots */}
-        <div className="relative z-20 flex flex-col items-center gap-3 select-none">
-          {/* Scroll Down Prompt */}
+        {/* 3. Footer Indicators */}
+        <div className="relative z-20 flex flex-col items-center gap-2.5 sm:gap-3 select-none">
           <motion.div
             style={{ opacity: promptOpacity }}
-            className="flex items-center gap-1.5 text-zinc-400 font-mono text-[10px] tracking-widest uppercase pointer-events-none"
+            className="flex items-center gap-1.5 text-zinc-400 font-mono text-[9px] sm:text-[10px] tracking-widest uppercase pointer-events-none"
           >
             <span>Scroll to flip cards</span>
             <ChevronDown className="w-3.5 h-3.5 animate-bounce text-purple-400" />
           </motion.div>
 
-          {/* 6 Step Progress Dots */}
-          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-purple-500/30">
+          <div className="flex items-center gap-1.5 sm:gap-2 bg-black/60 backdrop-blur-md px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-purple-500/30">
             {services.map((s, idx) => (
               <button
                 key={s.id}
@@ -492,7 +510,7 @@ export function WhatWeProvide() {
                 aria-label={`Jump to ${s.title}`}
                 className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                   activeCardIndex === idx
-                    ? "w-7 bg-gradient-to-r from-[#c084fc] to-[#a855f7] shadow-[0_0_8px_#c084fc]"
+                    ? "w-5 sm:w-7 bg-gradient-to-r from-[#c084fc] to-[#a855f7] shadow-[0_0_8px_#c084fc]"
                     : "w-1.5 bg-white/25 hover:bg-white/50"
                 }`}
               />
