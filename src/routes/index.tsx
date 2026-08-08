@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Navbar } from "@/components/site/Navbar";
 import { IntroScrollExperience } from "@/components/site/IntroScrollExperience";
 import { WhyUs } from "@/components/site/WhyUs";
+import { WhatWeProvide } from "@/components/site/WhatWeProvide";
 import { Services } from "@/components/site/Services";
 import { Portfolio } from "@/components/site/Portfolio";
 import { Team } from "@/components/site/Team";
@@ -45,7 +46,7 @@ function Index() {
         {/* Full-screen pure video/animation sequence with DEVMEDO split explosion */}
         <IntroScrollExperience onFinish={handleFinish} />
 
-        {/* Immediately after scroll animation finishes, display Who We Are (WhyUs) and remaining sections */}
+        {/* Immediately after scroll animation finishes, display Who We Are (WhyUs), What We Provide, and remaining sections */}
         <AnimatePresence>
           {isFinished && (
             <motion.div
@@ -57,6 +58,7 @@ function Index() {
               className="relative z-10"
             >
               <WhyUs />
+              <WhatWeProvide />
               <Services />
               <Portfolio />
               <Team />
