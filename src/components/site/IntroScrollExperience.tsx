@@ -148,9 +148,13 @@ export function IntroScrollExperience({ onFinish }: IntroScrollExperienceProps) 
             {/* Subtitle: Dream • Make • Deliver */}
             <motion.p
               style={{ opacity: subtitleOpacity, y: subtitleY }}
-              className="mt-6 md:mt-8 text-xs sm:text-sm md:text-base font-mono font-semibold tracking-[0.3em] uppercase text-purple-300 drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+              className="mt-6 md:mt-8 text-xs sm:text-sm md:text-base font-mono font-semibold tracking-[0.3em] uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center justify-center gap-2"
             >
-              Dream • Make • Deliver
+              <span className="text-white">Dream</span>
+              <span className="text-purple-400">•</span>
+              <span className="text-[#c084fc] drop-shadow-[0_0_15px_rgba(192,132,252,0.5)]">Make</span>
+              <span className="text-purple-400">•</span>
+              <span className="text-white">Deliver</span>
             </motion.p>
           </motion.div>
         </div>
