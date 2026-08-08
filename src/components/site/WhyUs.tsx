@@ -65,7 +65,7 @@ export function WhyUs() {
 
           <div>
             <div className="font-display font-black text-4xl sm:text-6xl text-black">
-              50<span className="text-[#9333ea]">+</span>
+              10<span className="text-[#9333ea]">+</span>
             </div>
             <p className="text-xs sm:text-sm font-semibold text-zinc-600 mt-2">
               Projects Delivered
@@ -74,7 +74,7 @@ export function WhyUs() {
 
           <div>
             <div className="font-display font-black text-4xl sm:text-6xl text-black">
-              20<span className="text-[#9333ea]">+</span>
+              10<span className="text-[#9333ea]">+</span>
             </div>
             <p className="text-xs sm:text-sm font-semibold text-zinc-600 mt-2">
               Clients Served and Growing
@@ -83,7 +83,7 @@ export function WhyUs() {
 
           <div>
             <div className="font-display font-black text-4xl sm:text-6xl text-black">
-              1200<span className="text-[#9333ea]">+</span>
+              100<span className="text-[#9333ea]">+</span>
             </div>
             <p className="text-xs sm:text-sm font-semibold text-zinc-600 mt-2">
               Manual Hours Automated Away

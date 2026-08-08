@@ -37,15 +37,19 @@ export function Navbar({ visible = true }: NavbarProps) {
       className="fixed inset-x-0 top-0 z-50 px-4 pt-3 transition-all duration-300"
     >
       <nav
-        className={`mx-auto flex max-w-7xl items-center justify-between px-6 py-4 rounded-xl transition-all duration-300 ${
-          scrolled ? "bg-[#07060a]/90 backdrop-blur-md border border-purple-500/20 shadow-lg shadow-black/50" : "bg-transparent"
+        className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-500 relative overflow-hidden navbar-liquid-glass ${
+          scrolled 
+            ? "bg-[#0b0816]/75 border border-purple-500/30 py-3 shadow-lg shadow-black/70 scale-[0.99] mt-1" 
+            : "bg-[#07050d]/35 border border-white/10 py-4 shadow-md"
         }`}
       >
+        <div className="liquid-shine-sweep" />
+
         {/* Logo */}
         <a href="#home" className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
             <span className="font-display font-black text-xl tracking-tight text-white">
-              DevMed<span className="text-[#a855f7]">O</span>
+              Dev<span className="text-[#a855f7]">Me</span>Do
             </span>
           </div>
         </a>
@@ -88,7 +92,7 @@ export function Navbar({ visible = true }: NavbarProps) {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden bg-[#121018] border border-purple-500/20 rounded-2xl p-5 mt-2 shadow-2xl"
+          className="md:hidden navbar-liquid-glass bg-[#0c0919]/90 border border-purple-500/30 rounded-2xl p-5 mt-2 shadow-2xl"
         >
           <ul className="space-y-3">
             {links.map((l) => (
