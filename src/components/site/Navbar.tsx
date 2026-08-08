@@ -37,7 +37,7 @@ export function Navbar({ visible = true }: NavbarProps) {
       className="fixed inset-x-0 top-0 z-50 px-4 pt-3 transition-all duration-300"
     >
       <nav
-        className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-500 relative overflow-hidden navbar-liquid-glass ${
+        className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-500 relative overflow-hidden rounded-full navbar-liquid-glass ${
           scrolled 
             ? "bg-[#0b0816]/75 border border-purple-500/30 py-3 shadow-lg shadow-black/70 scale-[0.99] mt-1" 
             : "bg-[#07050d]/35 border border-white/10 py-4 shadow-md"
