@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { Toaster } from "@/components/ui/sonner";
 import { Navbar } from "@/components/site/Navbar";
 import { IntroScrollExperience } from "@/components/site/IntroScrollExperience";
-import { Hero } from "@/components/site/Hero";
 import { WhyUs } from "@/components/site/WhyUs";
 import { Services } from "@/components/site/Services";
 import { Portfolio } from "@/components/site/Portfolio";
@@ -39,25 +38,24 @@ function Index() {
 
   return (
     <div className="bg-[#07060a] text-white min-h-screen selection:bg-purple-600 selection:text-white">
-      {/* Navbar fades in gracefully when the last frame is reached */}
+      {/* Navbar fades in gracefully when the animation completes */}
       <Navbar visible={isFinished} />
 
       <main>
-        {/* Full-screen pure video/animation sequence */}
+        {/* Full-screen pure video/animation sequence with DEVMEDO split explosion */}
         <IntroScrollExperience onFinish={handleFinish} />
 
-        {/* Launch screen page smoothly fades in when reaching the last frame */}
+        {/* Immediately after scroll animation finishes, display Who We Are (WhyUs) and remaining sections */}
         <AnimatePresence>
           {isFinished && (
             <motion.div
               id="home"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="relative z-10"
             >
-              <Hero />
               <WhyUs />
               <Services />
               <Portfolio />

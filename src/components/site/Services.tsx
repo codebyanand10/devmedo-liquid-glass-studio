@@ -80,21 +80,30 @@ function LiquidGlassCard({ service }: { service: ServiceItem }) {
       transition={{ type: "spring", stiffness: 260, damping: 24 }}
       className="apple-liquid-glass relative rounded-[36px] p-6 sm:p-10 lg:p-12 overflow-hidden group"
     >
-      {/* 1. Dynamic Liquid Cursor Spotlight Refraction */}
+      {/* 1. Ambient Liquid Sheen Sweep */}
+      <div className="liquid-shine-sweep" />
+
+      {/* 2. Dynamic Liquid Cursor Spotlight Refraction */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 transition-opacity duration-500 z-10"
         style={{
           opacity: mousePos.active ? 1 : 0,
-          background: `radial-gradient(450px circle at ${mousePos.x}% ${mousePos.y}%, rgba(192, 132, 252, 0.18), rgba(168, 85, 247, 0.08) 40%, transparent 70%)`,
+          background: `radial-gradient(480px circle at ${mousePos.x}% ${mousePos.y}%, rgba(255, 255, 255, 0.22), rgba(192, 132, 252, 0.14) 30%, rgba(168, 85, 247, 0.06) 55%, transparent 75%)`,
         }}
       />
 
-      {/* 2. Iridescent Liquid Ambient Backdrop */}
-      <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 bg-[radial-gradient(circle,rgba(168,85,247,0.18)_0%,rgba(124,58,237,0.06)_50%,transparent_75%)] blur-3xl group-hover:scale-125 transition-transform duration-700" />
-      <div className="pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 bg-[radial-gradient(circle,rgba(124,58,237,0.15)_0%,rgba(168,85,247,0.04)_50%,transparent_75%)] blur-3xl group-hover:scale-125 transition-transform duration-700" />
+      {/* 3. Liquid Top-Edge Specular Glass Gleam */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-[36px] border border-white/30 [mask-image:linear-gradient(to_bottom,white,transparent_65%)]"
+      />
 
-      {/* 3. Card Content Grid */}
+      {/* 4. Iridescent Liquid Ambient Backdrop */}
+      <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 bg-[radial-gradient(circle,rgba(168,85,247,0.2)_0%,rgba(124,58,237,0.08)_50%,transparent_75%)] blur-3xl group-hover:scale-125 transition-transform duration-700" />
+      <div className="pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 bg-[radial-gradient(circle,rgba(124,58,237,0.18)_0%,rgba(168,85,247,0.06)_50%,transparent_75%)] blur-3xl group-hover:scale-125 transition-transform duration-700" />
+
+      {/* 5. Card Content Grid */}
       <div className="relative z-20 flex flex-col lg:flex-row items-center justify-between gap-10">
         {/* If not flipped: text on left, visual on right */}
         {!service.isFlipped ? (
@@ -134,6 +143,7 @@ function LiquidGlassCard({ service }: { service: ServiceItem }) {
 
             {/* Right Column: Liquid Glass Interactive Visual Mockup */}
             <div className="w-full lg:w-[420px] h-[240px] rounded-[28px] apple-liquid-glass-pill p-6 flex items-center justify-center relative overflow-hidden group-hover:shadow-[0_0_35px_rgba(168,85,247,0.3)] transition-all duration-500">
+              <div className="liquid-shine-sweep opacity-70" />
               {/* Internal Refraction Glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-black/40 pointer-events-none" />
 
@@ -182,6 +192,7 @@ function LiquidGlassCard({ service }: { service: ServiceItem }) {
           <>
             {/* Left Column: Liquid Glass Visual (when flipped) */}
             <div className="w-full lg:w-[420px] h-[240px] rounded-[28px] apple-liquid-glass-pill p-6 flex items-center justify-center relative overflow-hidden group-hover:shadow-[0_0_35px_rgba(168,85,247,0.3)] transition-all duration-500 order-2 lg:order-1">
+              <div className="liquid-shine-sweep opacity-70" />
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-black/40 pointer-events-none" />
 
               {service.visualType === "phone" && (

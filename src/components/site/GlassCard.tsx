@@ -11,32 +11,50 @@ export function GlassCard({
   const ref = useRef<HTMLDivElement>(null);
   const [shine, setShine] = useState({ x: 50, y: 50, on: false });
 
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const r = ref.current?.getBoundingClientRect();
+    if (!r) return;
+    setShine({
+      x: ((e.clientX - r.left) / r.width) * 100,
+      y: ((e.clientY - r.top) / r.height) * 100,
+      on: true,
+    });
+  };
+
+  const handlePointerLeave = () => {
+    setShine((s) => ({ ...s, on: false }));
+  };
+
   return (
     <motion.div
       ref={ref}
-      onPointerMove={(e) => {
-        const r = ref.current?.getBoundingClientRect();
-        if (!r) return;
-        setShine({
-          x: ((e.clientX - r.left) / r.width) * 100,
-          y: ((e.clientY - r.top) / r.height) * 100,
-          on: true,
-        });
-      }}
-      onPointerLeave={() => setShine((s) => ({ ...s, on: false }))}
-      whileHover={{ scale: 1.025, y: -6 }}
-      transition={{ type: "spring", stiffness: 240, damping: 22 }}
-      className={`glass glow-ring relative overflow-hidden rounded-3xl ${className}`}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+      whileHover={{ scale: 1.02, y: -6 }}
+      transition={{ type: "spring", stiffness: 260, damping: 24 }}
+      className={`apple-liquid-glass relative overflow-hidden rounded-[32px] p-6 sm:p-8 ${className}`}
     >
+      {/* 1. Ambient Liquid Sheen Wave */}
+      <div className="liquid-shine-sweep" />
+
+      {/* 2. Interactive Liquid Spotlight Lens */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+        className="pointer-events-none absolute inset-0 transition-opacity duration-500 z-10"
         style={{
           opacity: shine.on ? 1 : 0,
-          background: `radial-gradient(340px circle at ${shine.x}% ${shine.y}%, oklch(1 0 0 / 12%), transparent 65%)`,
+          background: `radial-gradient(400px circle at ${shine.x}% ${shine.y}%, rgba(255, 255, 255, 0.22), rgba(192, 132, 252, 0.12) 35%, transparent 65%)`,
         }}
       />
-      <div className="relative">{children}</div>
+
+      {/* 3. Liquid Bevel Highlight */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-[32px] border border-white/30 [mask-image:linear-gradient(to_bottom,white,transparent_70%)]"
+      />
+
+      {/* 4. Pod Content */}
+      <div className="relative z-20">{children}</div>
     </motion.div>
   );
 }
