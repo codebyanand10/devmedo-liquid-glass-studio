@@ -3,7 +3,7 @@
 Build a modern, visually striking single-page React website for "DevMeDo" — a software 
 
 development agency that builds websites, Android apps, web apps, and iOS apps using AI-assisted development.
-
+ 
 DESIGN STYLE: Liquid Glass / Glassmorphism
 
 - Use frosted glass panels: backdrop-blur, semi-transparent backgrounds (rgba white/black at 
