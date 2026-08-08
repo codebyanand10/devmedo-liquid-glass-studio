@@ -87,17 +87,10 @@ export function Contact() {
                     <div className="flex flex-wrap items-center gap-2 mt-1">
                       <button
                         type="button"
-                        onClick={() => handleWhatsAppDirect("918848109106")}
-                        className="text-xs font-semibold text-zinc-300 hover:text-white bg-white/5 border border-white/10 rounded-full px-3 py-1 hover:border-purple-400 hover:text-purple-300 transition-colors"
+                        onClick={() => handleWhatsAppDirect("917994980107")}
+                        className="text-xs font-semibold text-zinc-300 hover:text-white bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 hover:border-purple-400 hover:text-purple-300 transition-colors shadow-sm"
                       >
-                        +91 8848109106
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleWhatsAppDirect("918594060340")}
-                        className="text-xs font-semibold text-zinc-300 hover:text-white bg-white/5 border border-white/10 rounded-full px-3 py-1 hover:border-purple-400 hover:text-purple-300 transition-colors"
-                      >
-                        +91 85940 60340
+                        +91 7994980107
                       </button>
                     </div>
                   </div>

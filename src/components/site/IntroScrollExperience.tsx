@@ -1,17 +1,7 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import devmedoGif from "@/assets/devmedo.gif";
-
-// Eagerly import all 48 frames sorted numerically
-const frameImports = import.meta.glob<{ default: string }>(
-  "@/assets/devmedo_scroll/ezgif-frame-*.jpg",
-  { eager: true }
-);
-
-const frameUrls = Object.keys(frameImports)
-  .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-  .map((path) => frameImports[path].default);
 
 interface IntroScrollExperienceProps {
   onFinish?: (finished: boolean) => void;
@@ -19,72 +9,41 @@ interface IntroScrollExperienceProps {
 
 export function IntroScrollExperience({ onFinish }: IntroScrollExperienceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gifCompleted, setGifCompleted] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
-  const loadedImagesRef = useRef<HTMLImageElement[]>([]);
-  const currentFrameRef = useRef(0);
 
-  // Master scroll tracking across the whole cinematic pinned journey
+  // Master scroll tracking across the DEVMEDO split & reveal sequence
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
-  // 1. Initial Prompt "scroll up" fades out early
-  const promptOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
+  // Prompt "scroll up" fades out early
+  const promptOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
 
-  // 2. 3D Canvas opacity (visible during frame scroll 0.0 -> 0.50, crossfades out at 0.58)
-  const canvasOpacity = useTransform(scrollYProgress, [0, 0.48, 0.56], [1, 1, 0]);
-
-  // 3. DEVMEDO Text Phase (Appears from 0.52 -> 0.58, then splits apart from 0.62 -> 0.88)
-  const devmedoContainerOpacity = useTransform(
-    scrollYProgress,
-    [0.50, 0.56, 0.86, 0.94],
-    [0, 1, 1, 0]
-  );
+  // Overall DEVMEDO container opacity
+  const devmedoContainerOpacity = useTransform(scrollYProgress, [0, 0.7, 0.9], [1, 1, 0]);
 
   // DEV moves UP & fades out
-  const devY = useTransform(scrollYProgress, [0.62, 0.86], [0, -350]);
-  const devOpacity = useTransform(scrollYProgress, [0.62, 0.84], [1, 0]);
+  const devY = useTransform(scrollYProgress, [0.1, 0.75], [0, -350]);
+  const devOpacity = useTransform(scrollYProgress, [0.1, 0.7], [1, 0]);
 
   // DO moves DOWN & fades out
-  const doY = useTransform(scrollYProgress, [0.62, 0.86], [0, 350]);
-  const doOpacity = useTransform(scrollYProgress, [0.62, 0.84], [1, 0]);
+  const doY = useTransform(scrollYProgress, [0.1, 0.75], [0, 350]);
+  const doOpacity = useTransform(scrollYProgress, [0.1, 0.7], [1, 0]);
 
   // ME zooms in (scale increases)
-  const meScale = useTransform(scrollYProgress, [0.62, 0.88], [1, 3.8]);
-  const meOpacity = useTransform(scrollYProgress, [0.72, 0.88], [1, 0]);
+  const meScale = useTransform(scrollYProgress, [0.1, 0.8], [1, 4]);
+  const meOpacity = useTransform(scrollYProgress, [0.35, 0.8], [1, 0]);
 
   // M splits to the LEFT
-  const mX = useTransform(scrollYProgress, [0.62, 0.88], [0, -380]);
+  const mX = useTransform(scrollYProgress, [0.1, 0.8], [0, -380]);
 
   // E splits to the RIGHT
-  const eX = useTransform(scrollYProgress, [0.62, 0.88], [0, 380]);
+  const eX = useTransform(scrollYProgress, [0.1, 0.8], [0, 380]);
 
-  // Subtitle "Dream • Make • Deliver" fades out as split begins
-  const subtitleOpacity = useTransform(scrollYProgress, [0.58, 0.72], [1, 0]);
-  const subtitleY = useTransform(scrollYProgress, [0.58, 0.72], [0, 35]);
-
-  // Preload all 48 frames into memory
-  useEffect(() => {
-    let loadedCount = 0;
-    const total = frameUrls.length;
-    const images: HTMLImageElement[] = [];
-
-    frameUrls.forEach((url, i) => {
-      const img = new Image();
-      img.src = url;
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === total) {
-          loadedImagesRef.current = images;
-          setImagesLoaded(true);
-        }
-      };
-      images[i] = img;
-    });
-  }, []);
+  // Subtitle "Dream • Make • Deliver" fades out as scrolling begins
+  const subtitleOpacity = useTransform(scrollYProgress, [0.05, 0.45], [1, 0]);
+  const subtitleY = useTransform(scrollYProgress, [0.05, 0.45], [0, 35]);
 
   // Timer for initial devmedo.gif playback (approx 2.8 seconds)
   useEffect(() => {
@@ -94,95 +53,15 @@ export function IntroScrollExperience({ onFinish }: IntroScrollExperienceProps) 
     return () => clearTimeout(timer);
   }, []);
 
-  // Frame rendering helper on full-screen canvas (COVER mode: fills 100% of the screen size)
-  const renderFrameToCanvas = useCallback((img: HTMLImageElement) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const displayWidth = window.innerWidth;
-    const displayHeight = window.innerHeight;
-
-    if (canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr) {
-      canvas.width = displayWidth * dpr;
-      canvas.height = displayHeight * dpr;
-    }
-
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, displayWidth, displayHeight);
-
-    const imgAspect = img.naturalWidth / img.naturalHeight;
-    const screenAspect = displayWidth / displayHeight;
-
-    let renderWidth = displayWidth;
-    let renderHeight = displayHeight;
-    let offsetX = 0;
-    let offsetY = 0;
-
-    // OBJECT-COVER: Exact full-page coverage with zero letterboxing / zero borders
-    if (screenAspect > imgAspect) {
-      renderWidth = displayWidth;
-      renderHeight = displayWidth / imgAspect;
-      offsetX = 0;
-      offsetY = (displayHeight - renderHeight) / 2;
-    } else {
-      renderHeight = displayHeight;
-      renderWidth = displayHeight * imgAspect;
-      offsetX = (displayWidth - renderWidth) / 2;
-      offsetY = 0;
-    }
-
-    ctx.drawImage(img, offsetX, offsetY, renderWidth, renderHeight);
-    ctx.restore();
-  }, []);
-
-  // Render active frame to canvas based on scroll position (mapped to first 50% of scroll track)
+  // Monitor scroll progression to unlock & fade in next page
   useEffect(() => {
-    if (!imagesLoaded) return;
-
-    // Draw initial frame
-    const firstImg = loadedImagesRef.current[0];
-    if (firstImg) {
-      renderFrameToCanvas(firstImg);
-    }
-
-    const handleResize = () => {
-      const activeImg =
-        loadedImagesRef.current[currentFrameRef.current] || loadedImagesRef.current[0];
-      if (activeImg) renderFrameToCanvas(activeImg);
-    };
-    window.addEventListener("resize", handleResize);
-
     const unsubscribe = scrollYProgress.on("change", (latest) => {
-      const totalFrames = frameUrls.length;
-
-      // Map progress 0.0 -> 0.50 to the 48 animation frames
-      const frameNormalized = Math.min(1, Math.max(0, latest / 0.50));
-      const frameIndex = Math.min(
-        totalFrames - 1,
-        Math.floor(frameNormalized * totalFrames)
-      );
-
-      currentFrameRef.current = frameIndex;
-
-      const targetImg = loadedImagesRef.current[frameIndex];
-      if (targetImg && targetImg.complete) {
-        renderFrameToCanvas(targetImg);
-      }
-
-      // When the split animation is concluding (progress >= 0.80), unlock & reveal next page
-      const isNextPageReady = latest >= 0.78;
+      const isNextPageReady = latest >= 0.65;
       onFinish?.(isNextPageReady);
     });
 
-    return () => {
-      unsubscribe();
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [imagesLoaded, scrollYProgress, renderFrameToCanvas, onFinish]);
+    return () => unsubscribe();
+  }, [scrollYProgress, onFinish]);
 
   return (
     <div className="relative w-full bg-[#07060a]">
@@ -204,17 +83,10 @@ export function IntroScrollExperience({ onFinish }: IntroScrollExperienceProps) 
         )}
       </AnimatePresence>
 
-      {/* 2. Pinned Scroll Journey: 3D Frames -> DEVMEDO Split Explosion -> Next Page */}
-      <div ref={containerRef} className="relative h-[480vh] w-full bg-[#07060a]">
+      {/* 2. Pinned Scroll Sequence: DEVMEDO (Dream • Make • Deliver) -> Split Explosion -> Next Page */}
+      <div ref={containerRef} className="relative h-[260vh] w-full bg-[#07060a]">
         <div className="sticky top-0 h-screen w-screen overflow-hidden bg-[#07060a] flex items-center justify-center">
-          {/* Full Screen Edge-to-Edge 3D Canvas */}
-          <motion.canvas
-            ref={canvasRef}
-            style={{ opacity: canvasOpacity }}
-            className="absolute inset-0 w-full h-full block pointer-events-none"
-          />
-
-          {/* Initial Prompt: 'scroll up' (fades out as scrolling begins) */}
+          {/* Prompt: 'scroll up' */}
           <motion.div
             style={{ opacity: promptOpacity }}
             className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 pointer-events-none select-none"
@@ -225,7 +97,7 @@ export function IntroScrollExperience({ onFinish }: IntroScrollExperienceProps) 
             <ChevronDown className="w-4 h-4 text-white/60 animate-bounce" />
           </motion.div>
 
-          {/* DEVMEDO Morph & Explosion Stage */}
+          {/* DEVMEDO Typography & Morph Explosion */}
           <motion.div
             style={{ opacity: devmedoContainerOpacity }}
             className="relative z-30 flex flex-col items-center justify-center text-center px-4 select-none pointer-events-none"
