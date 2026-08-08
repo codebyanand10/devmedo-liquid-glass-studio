@@ -1,107 +1,94 @@
-import { useEffect, useRef, useState } from "react";
-import { useInView } from "motion/react";
-import { Bot, Gauge, ShieldCheck, Users } from "lucide-react";
-import { Reveal, RevealGroup, RevealItem } from "./Reveal";
-import { GlassCard } from "./GlassCard";
-
-const stats = [
-  { value: 140, suffix: "+", label: "Projects delivered" },
-  { value: 45, suffix: "+", label: "Technologies used" },
-  { value: 4, suffix: "x", label: "Faster time to launch" },
-  { value: 98, suffix: "%", label: "Client retention" },
-];
-
-const pillars = [
-  {
-    icon: Bot,
-    title: "AI-assisted engineering",
-    body: "Copilots handle scaffolding, tests and refactors while our engineers own architecture and judgement.",
-  },
-  {
-    icon: Gauge,
-    title: "Weeks, not quarters",
-    body: "Working software in your hands from week one, iterated in tight feedback loops.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Production-grade quality",
-    body: "Typed codebases, automated testing, accessibility and performance budgets by default.",
-  },
-  {
-    icon: Users,
-    title: "Senior-only team",
-    body: "You work directly with the people writing the code — no handoffs, no account layers.",
-  },
-];
-
-function Counter({ value, suffix }: { value: number; suffix: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.5 });
-  const [n, setN] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    let raf = 0;
-    const start = performance.now();
-    const dur = 1600;
-    const tick = (t: number) => {
-      const p = Math.min((t - start) / dur, 1);
-      setN(Math.round(value * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, value]);
-
-  return (
-    <span ref={ref} className="font-display text-4xl font-bold text-gradient sm:text-5xl">
-      {n}
-      {suffix}
-    </span>
-  );
-}
+import { ArrowUpRight } from "lucide-react";
 
 export function WhyUs() {
   return (
-    <section id="why" className="relative px-4 py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr]">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan">
-              Why DevMeDo
-            </p>
-            <h2 className="mt-4 text-3xl font-bold sm:text-5xl">
-              An AI-native way of building software
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              We pair experienced product engineers with AI tooling across the whole
-              lifecycle — research, design systems, code, QA and release. The result is
-              less busywork, more craft, and products that reach real users far sooner.
-            </p>
+    <section id="about" className="relative bg-white text-black rounded-t-[44px] md:rounded-t-[60px] pt-20 pb-20 px-6 sm:px-10 z-10 shadow-2xl">
+      <div className="max-w-7xl mx-auto">
+        {/* Section Header */}
+        <div className="mb-14">
+          <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#9333ea] block mb-3">
+            WHO WE ARE
+          </span>
+          <h2 className="font-display font-black text-3xl sm:text-5xl md:text-6xl tracking-tight uppercase max-w-4xl leading-[1.08]">
+            A SOFTWARE STUDIO BUILT AROUND{" "}
+            <span className="bg-gradient-to-r from-[#7c3aed] to-[#a855f7] bg-clip-text text-transparent">DELIVERY.</span>
+          </h2>
+        </div>
 
-            <div className="mt-10 grid grid-cols-2 gap-6">
-              {stats.map((s) => (
-                <div key={s.label} className="glass rounded-2xl p-5">
-                  <Counter value={s.value} suffix={s.suffix} />
-                  <p className="mt-2 text-xs text-muted-foreground">{s.label}</p>
-                </div>
-              ))}
+        {/* Two Column Layout */}
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
+          {/* Left Column: Graphic Card */}
+          <div className="bg-[#f8f6fc] rounded-3xl p-10 sm:p-14 flex flex-col items-center justify-center text-center min-h-[380px] border border-purple-100 shadow-sm group">
+            <h3 className="font-display font-black text-3xl sm:text-5xl uppercase tracking-tight text-black leading-tight">
+              DESIGN.<br />
+              DEVELOPMENT.<br />
+              KNOWLEDGE.
+            </h3>
+            <a
+              href="#works"
+              className="mt-8 inline-flex items-center gap-2 bg-white text-black font-bold text-xs uppercase px-6 py-3 rounded-full border border-purple-200 hover:border-[#9333ea] hover:text-[#9333ea] transition-colors shadow-sm"
+            >
+              Case Studies <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
+
+          {/* Right Column: Studio Descriptions */}
+          <div className="space-y-6 text-zinc-700 text-sm sm:text-base leading-relaxed">
+            <p>
+              DevMeDo is a software studio building websites, mobile and web applications,
+              and business automation. We pair clean, efficient code with practical design
+              to ship products that are fast, reliable and easy to run.
+            </p>
+            <p>
+              Automation is where we do our best work. Order flows, invoicing, reports,
+              data entry, WhatsApp and email follow-ups, system-to-system integrations —
+              if your team repeats it every day, we can hand it to a script or a workflow instead.
+            </p>
+            <p>
+              From first call to launch and beyond, we work closely with you to understand the
+              goals, the users and the constraints. You get a clear scope, honest timelines,
+              and a team that stays available after go-live.
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom Stats Grid */}
+        <div className="mt-20 pt-12 border-t border-zinc-200 grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div>
+            <div className="font-display font-black text-4xl sm:text-6xl text-black">
+              100<span className="text-[#9333ea]">%</span>
             </div>
-          </Reveal>
+            <p className="text-xs sm:text-sm font-semibold text-zinc-600 mt-2">
+              Client Satisfaction Rate
+            </p>
+          </div>
 
-          <RevealGroup className="grid gap-6 sm:grid-cols-2">
-            {pillars.map((p) => (
-              <RevealItem key={p.title}>
-                <GlassCard className="h-full p-6">
-                  <p.icon className="h-6 w-6 text-cyan" />
-                  <h3 className="mt-5 text-lg font-semibold">{p.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {p.body}
-                  </p>
-                </GlassCard>
-              </RevealItem>
-            ))}
-          </RevealGroup>
+          <div>
+            <div className="font-display font-black text-4xl sm:text-6xl text-black">
+              50<span className="text-[#9333ea]">+</span>
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-zinc-600 mt-2">
+              Projects Delivered
+            </p>
+          </div>
+
+          <div>
+            <div className="font-display font-black text-4xl sm:text-6xl text-black">
+              20<span className="text-[#9333ea]">+</span>
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-zinc-600 mt-2">
+              Clients Served and Growing
+            </p>
+          </div>
+
+          <div>
+            <div className="font-display font-black text-4xl sm:text-6xl text-black">
+              1200<span className="text-[#9333ea]">+</span>
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-zinc-600 mt-2">
+              Manual Hours Automated Away
+            </p>
+          </div>
         </div>
       </div>
     </section>
